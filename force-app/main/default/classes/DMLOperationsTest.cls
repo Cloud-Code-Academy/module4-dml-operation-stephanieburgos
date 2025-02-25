@@ -162,7 +162,7 @@ public with sharing class DMLOperationsTest {
     
         // Retrieve the Account from the database
         Account retrievedAcc = [SELECT Id, Name FROM Account WHERE Name = :accountName];
-        
+
         // Retrieve the Opportunities from the database
         List<Opportunity> retrievedOpps = [SELECT Id, Name FROM Opportunity WHERE AccountId = :retrievedAcc.Id];
         
