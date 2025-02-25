@@ -163,37 +163,11 @@ public with sharing class DMLOperations {
      * @param accountName The name of the Account.
      * @param oppNames The list of Opportunity names.
      */
-    // public static void upsertOpportunities(String accountName, List<String> oppNames) {
-    //     // Account acct = [SELECT Id FROM Account WHERE Name = :accountName];
-
-    //     Account acct = null;    
-    //     List<Account> accs = [SELECT Id, Name FROM Account WHERE Name = :accountName LIMIT 1];
-    //     if(!accs.isEmpty()){
-    //         acct = accs[0];
-    //     } else {
-    //             Account newAcct = new Account(Name = accountName);
-    //             acct = newAcct;
-    //             insert acct;
-    //             System.debug(acct);
-    //     }
-
-
-    //     List<Opportunity> oppsListRetrieve = [SELECT Id, Name FROM Opportunity WHERE accountId = :acct.Id AND Name IN :oppNames];
-    //     List<Opportunity> oppsList = new List<Opportunity>();
-
-    //     // Loop through each Opportunity name
-    //     for (String oppName : oppNames) {
-    //         // Create an Opportunity with the given name
-    //         Opportunity newOpp = new Opportunity(Name = oppName, AccountId = acct.Id, CloseDate = Date.today(), StageName = 'Prospecting');
-    //         // Add the Opportunity to the list
-    //         oppsList.add(newOpp);
-    //     }
-    //     upsert oppsList;
-    // }
+  
     public static void upsertOpportunities(String accountName, List<String> oppNames) {
         Account acct;
         
-        List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName LIMIT 1];
+        List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName];
         if (!accounts.isEmpty()) {
             acct = accounts[0]; 
         } else {
