@@ -150,7 +150,13 @@ public with sharing class DMLOperations {
             // Set the Opportunity's Close Date to 3 months from today
             // Set the Opportunity's Amount to 50000
         // Upsert the opportunities List so that records are either updated or created
-        upsert updatedOpps;
+        try {
+            upsert updatedOpps;
+        } catch (DmlException e) {
+            for (Integer i = 0; i < e.getNumDml(); i++) {
+                System.debug('Error at index ' + i + ': ' + e.getDmlMessage(i));
+            }
+        }
     }
 
     /**
@@ -167,7 +173,7 @@ public with sharing class DMLOperations {
     public static void upsertOpportunities(String accountName, List<String> oppNames) {
         Account acct;
         
-        List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName];
+        List<Account> accounts = [SELECT Id FROM Account WHERE Name = :accountName LIMIT 10];
         if (!accounts.isEmpty()) {
             acct = accounts[0]; 
         } else {
@@ -178,19 +184,21 @@ public with sharing class DMLOperations {
         
 
         // Find existing opportunities for the account and add to Map: OppName => Opp
-        Map<String, Opportunity> existingOpps = new Map<String, Opportunity>();
+        Map<String, Opportunity> existingOppsMap = new Map<String, Opportunity>();
         List<Opportunity> exsistingOppsList = [SELECT Id, Name, StageName, CloseDate FROM Opportunity WHERE AccountId = :acct.Id AND Name IN :oppNames];
-        for (Opportunity opp : exsistingOppsList) {
-            existingOpps.put(opp.Name, opp);
+        if (exsistingOppsList.size() > 0) {
+            for (Opportunity opp : exsistingOppsList) {
+                existingOppsMap.put(opp.Name, opp);
+            }
         }
 
         // Create list to add Opportunities to
         List<Opportunity> oppsToUpsert = new List<Opportunity>();
         // Loop through each Opportunity name
         for(String oppName: oppNames) {
-            if (existingOpps.containsKey(oppName)) {
+            if (existingOppsMap.containsKey(oppName)) {
                 // Update the existing opportunity
-                Opportunity existingOpp = existingOpps.get(oppName);
+                Opportunity existingOpp = existingOppsMap.get(oppName);
                 existingOpp.StageName = 'Closed Won';
                 existingOpp.CloseDate = Date.today();
                 oppsToUpsert.add(existingOpp);
